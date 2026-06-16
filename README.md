@@ -43,7 +43,7 @@ cp .env.example .env
 Open `.env` and set `BASE_URL` to the address of your local LLM server:
 
 ```env
-BASE_URL=http://192.168.15.103:1234
+BASE_URL=http://localhost:1234
 DEFAULT_MODEL_KEY=google/gemma-4-e2b
 MOCK_MODE=false
 ```

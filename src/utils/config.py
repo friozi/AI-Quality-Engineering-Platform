@@ -24,7 +24,7 @@ class Config(BaseSettings):
     # ------------------------------------------------------------------ #
     # API Connection
     # ------------------------------------------------------------------ #
-    base_url: str = "http://192.168.15.103:1234"
+    base_url: str = "http://localhost:1234"
     timeout_seconds: float = Field(default=30.0, gt=0.0)
     max_retries: int = Field(default=3, ge=0)
     retry_backoff_factor: float = Field(default=2.0, gt=0.0)
