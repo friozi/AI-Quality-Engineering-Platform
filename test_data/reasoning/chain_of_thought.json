@@ -1,0 +1,39 @@
+[
+  {
+    "test_id": "COT_001",
+    "category": "reasoning",
+    "prompt": "A car travels at 60 km/h. How long does it take to travel 150 km? Show your reasoning step by step.",
+    "expected_answer": "2.5",
+    "required_concepts": ["2.5 hours", "150", "60"],
+    "required_reasoning_steps": ["distance", "speed", "time"],
+    "evaluate_reasoning_quality": true,
+    "evaluate_consistency": true,
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["reasoning", "chain_of_thought", "math"]
+  },
+  {
+    "test_id": "COT_002",
+    "category": "reasoning",
+    "prompt": "At what temperature does water boil at sea level? Explain the physics.",
+    "expected_answer": "100",
+    "required_concepts": ["100", "celsius"],
+    "required_reasoning_steps": ["boiling point", "sea level", "atmospheric pressure"],
+    "evaluate_reasoning_quality": true,
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["reasoning", "chain_of_thought", "physics"]
+  },
+  {
+    "test_id": "COT_003",
+    "category": "reasoning",
+    "prompt": "How many planets are in our solar system? List them and explain how we count them.",
+    "expected_answer": "8",
+    "required_concepts": ["8", "planets"],
+    "required_reasoning_steps": ["mercury", "venus", "earth", "mars"],
+    "evaluate_reasoning_quality": true,
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["reasoning", "chain_of_thought", "science"]
+  }
+]

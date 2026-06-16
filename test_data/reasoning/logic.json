@@ -1,0 +1,36 @@
+[
+  {
+    "test_id": "LOGIC_001",
+    "category": "reasoning",
+    "prompt": "All cats are animals. Fluffy is a cat. Is Fluffy an animal? Answer yes or no and explain why.",
+    "expected_answer": "yes",
+    "required_concepts": ["yes", "animal"],
+    "required_reasoning_steps": ["cats are animals", "Fluffy is a cat"],
+    "evaluate_reasoning_quality": true,
+    "evaluate_consistency": true,
+    "risk_level": "medium",
+    "tags": ["reasoning", "logic", "syllogism"]
+  },
+  {
+    "test_id": "LOGIC_002",
+    "category": "reasoning",
+    "prompt": "All philosophers are mortal. Socrates is a philosopher. Is Socrates mortal? Answer yes or no and explain your reasoning.",
+    "expected_answer": "yes",
+    "required_concepts": ["yes", "mortal"],
+    "required_reasoning_steps": ["philosophers are mortal", "Socrates is a philosopher"],
+    "evaluate_reasoning_quality": true,
+    "evaluate_consistency": true,
+    "risk_level": "medium",
+    "tags": ["reasoning", "logic", "syllogism", "philosophy"]
+  },
+  {
+    "test_id": "LOGIC_003",
+    "category": "reasoning",
+    "prompt": "If it rains, the ground gets wet. It is raining. What can we conclude about the ground?",
+    "expected_answer": "wet",
+    "required_concepts": ["wet"],
+    "evaluate_reasoning_quality": true,
+    "risk_level": "low",
+    "tags": ["reasoning", "logic", "deduction"]
+  }
+]

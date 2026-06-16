@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.env
+.venv/
+venv/
+env/
+ENV/
+
+# Pytest
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.log
+
+# Generated reports
+reports/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*.iml
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+.tmp/

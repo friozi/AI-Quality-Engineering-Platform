@@ -1,0 +1,28 @@
+[
+  {
+    "test_id": "HIST_001",
+    "category": "accuracy",
+    "prompt": "In what year did World War II end?",
+    "expected_answer": "1945",
+    "evaluation_strategy": "exact",
+    "risk_level": "medium",
+    "tags": ["history", "dates"]
+  },
+  {
+    "test_id": "HIST_002",
+    "category": "accuracy",
+    "prompt": "Who was the first person to walk on the Moon?",
+    "expected_answer": "Neil Armstrong",
+    "risk_level": "medium",
+    "tags": ["history", "space"]
+  },
+  {
+    "test_id": "HIST_003",
+    "category": "accuracy",
+    "prompt": "In what year did the Berlin Wall fall?",
+    "expected_answer": "1989",
+    "evaluation_strategy": "exact",
+    "risk_level": "medium",
+    "tags": ["history", "dates", "germany"]
+  }
+]

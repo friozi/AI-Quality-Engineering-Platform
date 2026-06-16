@@ -1,0 +1,20 @@
+# ============================================================
+# V2 OPTIONAL DEPENDENCIES — Do not install for V1
+# These unlock embedding-based and LLM-as-Judge evaluators.
+# Install only when the local API exposes an embeddings endpoint
+# and/or a secondary judge model is available.
+# ============================================================
+
+# Embedding-based evaluation (V2 — Tier 2 evaluators)
+# sentence-transformers>=3.0.0
+
+# Toxicity classification (V2 — ToxicityEvaluator)
+# detoxify>=0.5.2
+# torch>=2.2.0
+
+# Secondary judge integrations (V2 — Tier 3 evaluators)
+# anthropic>=0.28.0
+# openai>=1.30.0
+
+# RAG / vector store (V2 — FaithfulnessEvaluator)
+# chromadb>=0.5.0

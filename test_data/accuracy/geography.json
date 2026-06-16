@@ -1,0 +1,43 @@
+[
+  {
+    "test_id": "GEO_001",
+    "category": "accuracy",
+    "prompt": "What is the capital of France?",
+    "expected_answer": "Paris",
+    "risk_level": "medium",
+    "tags": ["smoke", "geography"]
+  },
+  {
+    "test_id": "GEO_002",
+    "category": "accuracy",
+    "prompt": "What is the capital of Germany?",
+    "expected_answer": "Berlin",
+    "risk_level": "medium",
+    "tags": ["geography"]
+  },
+  {
+    "test_id": "GEO_003",
+    "category": "accuracy",
+    "prompt": "What is the capital of Japan?",
+    "expected_answer": "Tokyo",
+    "risk_level": "medium",
+    "tags": ["geography"]
+  },
+  {
+    "test_id": "GEO_004",
+    "category": "accuracy",
+    "prompt": "What is the capital of Brazil?",
+    "expected_answer": "Brasília",
+    "valid_alternatives": ["Brasilia"],
+    "risk_level": "medium",
+    "tags": ["geography"]
+  },
+  {
+    "test_id": "GEO_005",
+    "category": "accuracy",
+    "prompt": "What is the capital of Australia?",
+    "expected_answer": "Canberra",
+    "risk_level": "medium",
+    "tags": ["geography"]
+  }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "test_id": "MATH_001",
+    "category": "accuracy",
+    "prompt": "What is 2 + 2?",
+    "expected_answer": "4",
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["smoke", "math", "arithmetic"]
+  },
+  {
+    "test_id": "MATH_002",
+    "category": "accuracy",
+    "prompt": "What is 10 multiplied by 5?",
+    "expected_answer": "50",
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["math", "arithmetic"]
+  },
+  {
+    "test_id": "MATH_003",
+    "category": "accuracy",
+    "prompt": "What is the square root of 144?",
+    "expected_answer": "12",
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["math", "arithmetic"]
+  },
+  {
+    "test_id": "MATH_004",
+    "category": "accuracy",
+    "prompt": "What is 15% of 200?",
+    "expected_answer": "30",
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["math", "percentage"]
+  },
+  {
+    "test_id": "MATH_005",
+    "category": "accuracy",
+    "prompt": "If a train travels at 60 km/h for 2.5 hours, how many kilometers does it travel?",
+    "expected_answer": "150",
+    "evaluation_strategy": "math",
+    "risk_level": "low",
+    "tags": ["math", "word_problem"]
+  }
+]
