@@ -27,12 +27,6 @@ class ConfidenceLevel(str, Enum):
     LOW = "low"
 
 
-class StabilityStatus(str, Enum):
-    """Populated when a test case is run more than once (N_RUNS > 1)."""
-    STABLE = "stable"       # Same pass/fail verdict on every run
-    FLAKY = "flaky"         # Verdict flipped across runs
-    UNTESTED = "untested"   # Only one run performed (default)
-
 
 class ProcessQualityStatus(str, Enum):
     """
@@ -143,11 +137,6 @@ class EvaluationResult(BaseModel):
     )
 
     # ------------------------------------------------------------------
-    # Stability (populated when N_RUNS > 1)
-    # ------------------------------------------------------------------
-    stability_status: StabilityStatus = StabilityStatus.UNTESTED
-
-    # ------------------------------------------------------------------
     # Pass-through metadata (for filtering and reporting)
     # ------------------------------------------------------------------
     category: str = ""
@@ -214,7 +203,6 @@ class EvaluationResult(BaseModel):
         d["timestamp"] = self.timestamp.isoformat()
         d["tier"] = self.tier.name
         d["confidence"] = self.confidence.value
-        d["stability_status"] = self.stability_status.value
         d["process_quality"] = self.process_quality.value
         d["risk_level"] = self.risk_level.value
         d.pop("metadata", None)

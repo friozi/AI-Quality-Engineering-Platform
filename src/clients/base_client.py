@@ -65,22 +65,6 @@ class LLMParseError(LLMError):
 
 RETRYABLE_STATUS_CODES: frozenset[int] = frozenset({429, 500, 502, 503, 504})
 
-# Network-level exceptions that always warrant a retry attempt
-RETRYABLE_NETWORK_EXCEPTIONS: tuple[type[Exception], ...] = ()  # filled lazily below
-
-
-def _build_retryable_network_exceptions() -> tuple[type[Exception], ...]:
-    """Return retryable httpx exception types, importing lazily."""
-    try:
-        import httpx  # noqa: PLC0415
-        return (
-            httpx.TimeoutException,     # ConnectTimeout, ReadTimeout, WriteTimeout, PoolTimeout
-            httpx.NetworkError,         # ConnectError, ReadError, WriteError, CloseError
-            httpx.RemoteProtocolError,  # server sent invalid HTTP
-        )
-    except ImportError:
-        return (OSError, ConnectionError)
-
 
 # ---------------------------------------------------------------------------
 # Abstract base client

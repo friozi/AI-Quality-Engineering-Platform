@@ -45,7 +45,6 @@ Open `.env` and set `BASE_URL` to the address of your local LLM server:
 ```env
 BASE_URL=http://localhost:1234
 DEFAULT_MODEL_KEY=google/gemma-4-e2b
-MOCK_MODE=false
 ```
 
 ---
@@ -106,13 +105,11 @@ pytest tests/test_phase5_reporters.py -v
 
 ---
 
-### Run offline (no LLM needed)
+### Run offline (reporters only, no LLM needed)
 
 ```bash
-MOCK_MODE=true pytest tests/test_phase5_reporters.py -v
+pytest tests/test_phase5_reporters.py -v
 ```
-
-Or set `MOCK_MODE=true` in `.env` before running.
 
 ---
 

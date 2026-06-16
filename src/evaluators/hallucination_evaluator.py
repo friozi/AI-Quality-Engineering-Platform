@@ -28,7 +28,6 @@ from src.utils.text_utils import (
     check_reasoning_answer_consistency,
     contains_any,
     keyword_coverage,
-    matched_keywords,
     missing_keywords,
 )
 

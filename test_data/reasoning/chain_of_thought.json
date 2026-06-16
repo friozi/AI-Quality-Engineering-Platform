@@ -28,7 +28,7 @@
     "test_id": "COT_003",
     "category": "reasoning",
     "prompt": "How many planets are in our solar system? List them and explain how we count them.",
-    "expected_answer": "8",
+    "expected_answer": "eight",
     "required_concepts": ["8", "planets"],
     "required_reasoning_steps": ["mercury", "venus", "earth", "mars"],
     "evaluate_reasoning_quality": true,

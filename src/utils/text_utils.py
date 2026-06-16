@@ -15,28 +15,6 @@ from typing import Optional
 from rapidfuzz import fuzz
 
 # ---------------------------------------------------------------------------
-# Stopwords
-# ---------------------------------------------------------------------------
-
-STOPWORDS: frozenset[str] = frozenset(
-    {
-        "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
-        "have", "has", "had", "do", "does", "did", "will", "would", "could",
-        "should", "may", "might", "must", "shall", "can", "need", "dare",
-        "ought", "used", "to", "of", "in", "on", "at", "by", "for", "with",
-        "about", "against", "between", "into", "through", "during", "before",
-        "after", "above", "below", "from", "up", "down", "out", "off", "over",
-        "under", "again", "then", "once", "and", "but", "or", "nor", "so",
-        "yet", "both", "either", "neither", "not", "only", "own", "same",
-        "than", "too", "very", "just", "because", "if", "while", "i", "me",
-        "my", "myself", "we", "our", "you", "your", "he", "she", "it", "they",
-        "them", "their", "this", "that", "these", "those", "what", "which",
-        "who", "whom", "how", "all", "each", "every", "few", "more", "most",
-        "other", "some", "such", "no", "s", "t",
-    }
-)
-
-# ---------------------------------------------------------------------------
 # Normalisation
 # ---------------------------------------------------------------------------
 
@@ -79,16 +57,6 @@ def fuzzy_ratio(a: str, b: str) -> float:
     score close to 1.0 instead of ~0.5.
     """
     return fuzz.token_set_ratio(normalize_text(a), normalize_text(b)) / 100.0
-
-
-def fuzzy_partial_ratio(a: str, b: str) -> float:
-    """
-    Partial ratio via rapidfuzz (0.0 – 1.0).
-
-    Useful when the expected answer is likely a substring of a longer response,
-    e.g. expected="Paris" inside "The answer is Paris, the capital of France."
-    """
-    return fuzz.partial_ratio(normalize_text(a), normalize_text(b)) / 100.0
 
 
 def best_fuzzy_score(candidate: str, references: list[str]) -> float:
@@ -142,35 +110,7 @@ def contains_any(
 
 
 # ---------------------------------------------------------------------------
-# Tokenisation and set similarity
-# ---------------------------------------------------------------------------
-
-def tokenize(text: str, remove_stopwords: bool = True) -> list[str]:
-    """Split normalised text into tokens, optionally removing stopwords."""
-    tokens = normalize_text(text).split()
-    if remove_stopwords:
-        tokens = [t for t in tokens if t not in STOPWORDS]
-    return tokens
-
-
-def jaccard_similarity(a: str, b: str, remove_stopwords: bool = True) -> float:
-    """
-    Token-level Jaccard similarity between *a* and *b* (0.0 – 1.0).
-
-    Measures overlap of meaningful word sets, independent of word order.
-    Useful as a fast proxy for semantic overlap when embeddings are unavailable.
-    """
-    set_a = set(tokenize(a, remove_stopwords))
-    set_b = set(tokenize(b, remove_stopwords))
-    if not set_a and not set_b:
-        return 1.0
-    if not set_a or not set_b:
-        return 0.0
-    return len(set_a & set_b) / len(set_a | set_b)
-
-
-# ---------------------------------------------------------------------------
-# Number and answer extraction
+# Number extraction
 # ---------------------------------------------------------------------------
 
 _NUMBER_RE = re.compile(r"-?\d+(?:[.,]\d+)?")
@@ -207,27 +147,6 @@ def numbers_match(
     if not nums_a or not nums_b:
         return False
     return abs(nums_a[0] - nums_b[0]) <= tolerance
-
-
-_ANSWER_LABEL_RE = re.compile(
-    r"(?:answer|result|therefore|so|thus|conclusion|final answer)\s*[:\-–]\s*(.+?)(?:\n|$)",
-    re.IGNORECASE,
-)
-
-
-def extract_final_answer(text: str) -> str:
-    """
-    Extract the final answer from a response string.
-
-    Strategy (in order of preference):
-    1. Labelled answer line: "Answer: X", "Therefore: X", "Result — X", etc.
-    2. Last non-empty line of the text.
-    """
-    match = _ANSWER_LABEL_RE.search(text)
-    if match:
-        return match.group(1).strip()
-    lines = [line.strip() for line in text.strip().splitlines() if line.strip()]
-    return lines[-1] if lines else text.strip()
 
 
 # ---------------------------------------------------------------------------

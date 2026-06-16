@@ -3,7 +3,6 @@ from src.schemas.llm_response import LLMResponse, OutputBlock, OutputBlockType, 
 from src.schemas.evaluation_result import (
     EvaluationResult,
     ConfidenceLevel,
-    StabilityStatus,
     ProcessQualityStatus,
 )
 
@@ -21,6 +20,5 @@ __all__ = [
     # EvaluationResult and its enums
     "EvaluationResult",
     "ConfidenceLevel",
-    "StabilityStatus",
     "ProcessQualityStatus",
 ]

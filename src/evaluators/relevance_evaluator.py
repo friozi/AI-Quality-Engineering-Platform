@@ -23,7 +23,6 @@ from src.schemas.test_case import EvalTier, TestCase
 from src.utils.text_utils import (
     check_reasoning_answer_consistency,
     keyword_coverage,
-    matched_keywords,
     missing_keywords,
     verbosity_ratio,
 )
