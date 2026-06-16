@@ -39,7 +39,6 @@ class Config(BaseSettings):
     # ------------------------------------------------------------------ #
     # Execution
     # ------------------------------------------------------------------ #
-    mock_mode: bool = False
     # Keep low: local LLM has no request queue — parallel overload causes errors.
     max_parallel_workers: int = Field(default=2, ge=1)
 

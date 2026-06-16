@@ -44,10 +44,7 @@ _MODEL_NAME = "Gemma 4 E2B"
 
 @pytest.fixture(scope="session")
 def config() -> Config:
-    """
-    Framework configuration loaded from .env.
-    Set MOCK_MODE=true in .env to run offline against MockClient.
-    """
+    """Framework configuration loaded from .env."""
     return Config()
 
 

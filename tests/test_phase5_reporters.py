@@ -71,7 +71,7 @@ def fake_metrics(fake_results: list[EvaluationResult]) -> AggregatedMetrics:
 
 @pytest.fixture()
 def offline_config(tmp_path: Path) -> Config:
-    return Config(mock_mode=True, report_dir=tmp_path / "reports")
+    return Config(report_dir=tmp_path / "reports")
 
 
 # ---------------------------------------------------------------------------
