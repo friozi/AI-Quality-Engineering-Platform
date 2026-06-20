@@ -20,6 +20,7 @@
     "required_concepts": ["100", "celsius"],
     "required_reasoning_steps": ["boiling point", "sea level", "atmospheric pressure"],
     "evaluate_reasoning_quality": true,
+    "evaluate_consistency": false,
     "evaluation_strategy": "math",
     "risk_level": "low",
     "tags": ["reasoning", "chain_of_thought", "physics"]

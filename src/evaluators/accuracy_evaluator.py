@@ -33,7 +33,6 @@ from src.utils.text_utils import (
     keyword_coverage,
     matched_keywords,
     missing_keywords,
-    numbers_match,
     matches_any_pattern,
 )
 
@@ -136,10 +135,10 @@ class AccuracyEvaluator(BaseEvaluator):
         response_nums = extract_numbers(text)
         hits = sum(
             1 for en in expected_nums
-            if any(numbers_match(en, rn) for rn in response_nums)
+            if any(abs(en - rn) <= 0.001 for rn in response_nums)
         )
         score = hits / len(expected_nums)
-        return score, {"number_match": round(score, 4), "expected": expected_nums}, ConfidenceLevel.HIGH
+        return score, {"number_match": round(score, 4), "expected_count": float(len(expected_nums)), "hit_count": float(hits)}, ConfidenceLevel.HIGH
 
     def _score_coverage(
         self, test_case: TestCase, text: str

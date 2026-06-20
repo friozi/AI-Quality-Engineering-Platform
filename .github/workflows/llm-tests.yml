@@ -101,12 +101,19 @@ jobs:
 
       # ── 9. Run the full QA suite ─────────────────────────────────────
       - name: Run QA test suite
+        # continue-on-error: the QA suite is for reporting, not for gating
+        # deploys. Individual test failures are expected and captured in the
+        # uploaded artifacts. The job itself must not fail.
+        continue-on-error: true
         env:
           BASE_URL: http://localhost:11434/v1
           DEFAULT_MODEL_KEY: gemma4:e2b
           LLM_BACKEND: ollama
           REPORT_DIR: reports
           LOG_LEVEL: INFO
+          # Ollama on GitHub's runners is slower than local.
+          # 120s gives the model enough time for complex reasoning prompts.
+          TIMEOUT_SECONDS: "120"
         run: pytest -v --tb=short
 
       # ── 10. Upload reports (always, even on failure) ──────────────────

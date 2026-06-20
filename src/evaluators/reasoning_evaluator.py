@@ -52,18 +52,26 @@ class ReasoningEvaluator(BaseEvaluator):
         sub: dict[str, float] = {}
 
         # ── Signal 1: Presence of reasoning block ─────────────────────────
-        sub["has_reasoning"] = 1.0 if response.has_reasoning else 0.0
-
-        if not response.has_reasoning:
-            return self._make_result(
-                test_case, response,
-                score=0.2, passed=False,
-                confidence=ConfidenceLevel.HIGH,
-                explanation="Model did not produce a reasoning block.",
-                failure_reason="no_reasoning_block",
-                recommendation="Use a prompt that explicitly requests step-by-step reasoning.",
-                sub_scores=sub,
-            )
+        if response.has_reasoning:
+            sub["has_reasoning"] = 1.0
+        else:
+            # No API reasoning block. Check if the model put step-by-step
+            # reasoning directly in the message (some models do this).
+            in_message_steps = count_reasoning_steps(response.final_answer)
+            if in_message_steps >= 2:
+                # Treat the message as a reasoning proxy with partial credit.
+                reasoning = response.final_answer
+                sub["has_reasoning"] = 0.5
+            else:
+                return self._make_result(
+                    test_case, response,
+                    score=0.2, passed=False,
+                    confidence=ConfidenceLevel.HIGH,
+                    explanation="Model did not produce a reasoning block.",
+                    failure_reason="no_reasoning_block",
+                    recommendation="Use a prompt that explicitly requests step-by-step reasoning.",
+                    sub_scores=sub,
+                )
 
         # ── Signal 2: Required reasoning steps coverage ────────────────────
         if test_case.required_reasoning_steps:

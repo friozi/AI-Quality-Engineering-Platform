@@ -272,13 +272,4 @@ The framework supports multiple LLM backends through environment variables — n
 
 GitHub Actions sets these automatically via the `env:` block in the workflow. Local development continues to use the `.env` file unchanged.
 
----
 
-## V2 dependencies (optional, not required for V1)
-
-`requirements-v2-optional.txt` lists packages for future evaluators — embedding-based scoring, toxicity classification, and LLM-as-Judge. Do not install these for V1.
-
-```bash
-# Only when ready for V2
-pip install sentence-transformers detoxify anthropic
-```

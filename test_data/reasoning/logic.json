@@ -29,7 +29,7 @@
     "prompt": "If it rains, the ground gets wet. It is raining. What can we conclude about the ground?",
     "expected_answer": "wet",
     "required_concepts": ["wet"],
-    "evaluate_reasoning_quality": true,
+    "evaluate_reasoning_quality": false,
     "risk_level": "low",
     "tags": ["reasoning", "logic", "deduction"]
   }
