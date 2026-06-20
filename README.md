@@ -216,6 +216,64 @@ llm-qa-framework/
 
 ---
 
+---
+
+## Running inside GitHub Actions
+
+### How it works
+
+The workflow in `.github/workflows/llm-tests.yml` runs the entire QA test suite on a GitHub-hosted **Linux runner** (`ubuntu-latest`). No self-hosted runner or VPN is needed. Ollama is installed and started automatically as part of the job.
+
+### How Ollama is started
+
+1. The official Ollama binary is installed via `curl -fsSL https://ollama.com/install.sh | sh`.
+2. `ollama serve` is launched in the background and redirected to `/tmp/ollama.log`.
+3. A health-check loop polls `http://localhost:11434/api/tags` every 3 seconds. The job fails if Ollama does not respond within 120 seconds.
+
+### How Gemma is downloaded
+
+`ollama pull gemma4:e2b` runs after the server is healthy. Model files (~1.5 GB) are stored in `~/.ollama/models` and saved to GitHub's cache with the key:
+
+```
+ollama-gemma4-e2b-v1-Linux
+```
+
+On the first run the model is downloaded and the cache is populated. Every subsequent run restores the cache and skips the download entirely. To force a fresh download, bump the version suffix in the cache key (`v1` → `v2`).
+
+### How reports are produced
+
+The `_auto_report` fixture in `conftest.py` runs at the end of every `pytest` session and writes three files to `reports/run_<timestamp>/`:
+
+| File | Contents |
+|---|---|
+| `dashboard_summary.json` | Aggregated metrics: pass rate, quality score, per-category breakdown |
+| `results.csv` | One row per test case — scores, latencies, pass/fail, failure reasons |
+| `report.html` | Full visual report with summary cards and per-result detail |
+
+Reports are uploaded even when tests fail (`if: always()`).
+
+### How to view artifacts
+
+1. Go to the **Actions** tab in your GitHub repository.
+2. Click the completed workflow run (`LLM Tests (Gemma 4 E2B via Ollama)`).
+3. Scroll to the **Artifacts** section at the bottom of the page.
+4. Download `qa-reports-<sha>.zip`.
+5. Unzip and open `report.html` in your browser.
+
+### Backend configuration
+
+The framework supports multiple LLM backends through environment variables — no code changes needed:
+
+| Variable | LM Studio (local) | Ollama (local or CI) |
+|---|---|---|
+| `LLM_BACKEND` | `lmstudio` | `ollama` |
+| `BASE_URL` | `http://localhost:1234` | `http://localhost:11434/v1` |
+| `DEFAULT_MODEL_KEY` | `google/gemma-4-e2b` | `gemma4:e2b` |
+
+GitHub Actions sets these automatically via the `env:` block in the workflow. Local development continues to use the `.env` file unchanged.
+
+---
+
 ## V2 dependencies (optional, not required for V1)
 
 `requirements-v2-optional.txt` lists packages for future evaluators — embedding-based scoring, toxicity classification, and LLM-as-Judge. Do not install these for V1.

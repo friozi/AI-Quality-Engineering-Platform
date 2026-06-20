@@ -22,6 +22,13 @@ class Config(BaseSettings):
     )
 
     # ------------------------------------------------------------------ #
+    # Backend selection
+    # ------------------------------------------------------------------ #
+    # "lmstudio" → LocalLLMClient  (POST /api/v1/chat, LM Studio native API)
+    # "ollama"   → OllamaClient    (POST /chat/completions, OpenAI-compatible)
+    llm_backend: str = "lmstudio"
+
+    # ------------------------------------------------------------------ #
     # API Connection
     # ------------------------------------------------------------------ #
     base_url: str = "http://192.168.15.103:1234"

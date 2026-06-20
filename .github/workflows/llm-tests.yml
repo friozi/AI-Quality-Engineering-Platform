@@ -1,0 +1,126 @@
+name: LLM Tests (Gemma 4 E2B via Ollama)
+
+# Runs the full QA test suite against a real Gemma model on GitHub's Linux runners.
+# Ollama is installed and started automatically — no self-hosted runner required.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  llm-tests:
+    name: QA Suite — Gemma 4 E2B
+    runs-on: ubuntu-latest
+
+    # Generous timeout: model download (first run) + inference across all test cases.
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Source code ───────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Python environment ─────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # ── 3. Ollama binary ─────────────────────────────────────────────
+      - name: Install Ollama
+        run: |
+          echo "Installing Ollama..."
+          curl -fsSL https://ollama.com/install.sh | sh
+          echo "Ollama version: $(ollama --version)"
+
+      # ── 4. Model cache ───────────────────────────────────────────────
+      # Caches ~/.ollama/models so subsequent runs skip the ~1.5 GB download.
+      # Bump the version suffix (e.g. v2) to force a fresh download.
+      - name: Restore Ollama model cache
+        id: cache-model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-gemma4-e2b-v1-${{ runner.os }}
+
+      # ── 5. Start Ollama server ────────────────────────────────────────
+      - name: Start Ollama server
+        run: |
+          ollama serve > /tmp/ollama.log 2>&1 &
+          echo "Ollama server PID: $!"
+
+      # ── 6. Health check — wait up to 2 minutes ────────────────────────
+      - name: Wait for Ollama to be ready
+        run: |
+          echo "Waiting for Ollama server at http://localhost:11434..."
+          TIMEOUT=120
+          ELAPSED=0
+          until curl -sf http://localhost:11434/api/tags > /dev/null 2>&1; do
+            if [ "$ELAPSED" -ge "$TIMEOUT" ]; then
+              echo "ERROR: Ollama did not start within ${TIMEOUT}s."
+              echo "=== Server log ==="
+              cat /tmp/ollama.log
+              exit 1
+            fi
+            echo "Not ready yet (${ELAPSED}s elapsed)..."
+            sleep 3
+            ELAPSED=$((ELAPSED + 3))
+          done
+          echo "Ollama server is ready after ${ELAPSED}s."
+
+      # ── 7. Pull model (skipped when cache hit) ────────────────────────
+      - name: Pull Gemma 4 E2B
+        if: steps.cache-model.outputs.cache-hit != 'true'
+        run: |
+          echo "Downloading gemma4:e2b (this takes 2-5 minutes on first run)..."
+          ollama pull gemma4:e2b
+          echo "Download complete."
+
+      # ── 8. Confirm the model is available ────────────────────────────
+      - name: Verify model availability
+        run: |
+          echo "=== Loaded models ==="
+          ollama list
+          echo ""
+          echo "=== API model list ==="
+          curl -sf http://localhost:11434/api/tags | python3 -m json.tool
+          echo ""
+          # Fail fast if the model is missing — avoids confusing test errors later.
+          if ! ollama list | grep -q "gemma4"; then
+            echo "ERROR: gemma4 model not found. Pull may have failed."
+            exit 1
+          fi
+          echo "gemma4 model confirmed."
+
+      # ── 9. Run the full QA suite ─────────────────────────────────────
+      - name: Run QA test suite
+        env:
+          BASE_URL: http://localhost:11434/v1
+          DEFAULT_MODEL_KEY: gemma4:e2b
+          LLM_BACKEND: ollama
+          REPORT_DIR: reports
+          LOG_LEVEL: INFO
+        run: pytest -v --tb=short
+
+      # ── 10. Upload reports (always, even on failure) ──────────────────
+      - name: Upload QA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-${{ github.sha }}
+          path: reports/
+          retention-days: 30
+
+      # ── 11. Print Ollama server log on failure for diagnostics ────────
+      - name: Show Ollama server log (on failure)
+        if: failure()
+        run: |
+          echo "=== Ollama server log ==="
+          cat /tmp/ollama.log || echo "(log not available)"

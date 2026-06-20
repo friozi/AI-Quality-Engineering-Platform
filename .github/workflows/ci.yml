@@ -52,24 +52,34 @@ jobs:
         run: pytest tests/test_phase5_reporters.py -v --tb=short
 
   # ── LLM integration tests ────────────────────────────────────────────────
-  # Requires a self-hosted runner with the LLM server running and accessible.
-  # Runs automatically after offline-tests pass, on push to main or manually.
+  # Runs on GitHub-hosted Linux, connecting to your local Gemma via Tailscale.
   #
-  # Setup:
-  #   1. Install a GitHub Actions self-hosted runner on the machine with the LLM.
-  #      https://docs.github.com/en/actions/hosting-your-own-runners
-  #   2. Add repository secrets:
-  #      LLM_BASE_URL    — e.g. http://localhost:1234
-  #      LLM_MODEL_KEY   — e.g. google/gemma-4-e2b
+  # Prerequisites:
+  #   1. Install Tailscale on the Mac running the LLM:
+  #        brew install tailscale && sudo tailscale up
+  #   2. Create a Tailscale OAuth client at tailscale.com/admin/settings/oauth
+  #      with permission: devices:write
+  #   3. Add GitHub repository secrets:
+  #        TS_OAUTH_CLIENT_ID  — Tailscale OAuth client ID
+  #        TS_OAUTH_SECRET     — Tailscale OAuth client secret
+  #        LLM_BASE_URL        — http://<tailscale-ip>:1234
+  #        LLM_MODEL_KEY       — google/gemma-4-e2b
   llm-integration:
     name: LLM Integration Tests
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: offline-tests
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-client-secret: ${{ secrets.TS_OAUTH_SECRET }}
+          tags: tag:ci
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -79,6 +89,22 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      - name: Wait for LLM server to be reachable
+        env:
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+        run: |
+          echo "Checking LLM server at $LLM_BASE_URL..."
+          for i in $(seq 1 10); do
+            if curl -sf "$LLM_BASE_URL/api/v1/models" > /dev/null 2>&1; then
+              echo "LLM server is up."
+              exit 0
+            fi
+            echo "Attempt $i/10 — retrying in 5s..."
+            sleep 5
+          done
+          echo "LLM server did not respond after 50s. Aborting."
+          exit 1
 
       - name: Run full test suite against live LLM
         env:

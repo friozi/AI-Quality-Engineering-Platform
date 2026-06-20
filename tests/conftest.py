@@ -22,6 +22,7 @@ import pytest
 from loguru import logger
 
 from src.clients.local_llm_client import LocalLLMClient
+from src.clients.ollama_client import OllamaClient
 from src.evaluators.accuracy_evaluator import AccuracyEvaluator
 from src.evaluators.hallucination_evaluator import HallucinationEvaluator
 from src.evaluators.jailbreak_evaluator import JailbreakEvaluator
@@ -55,12 +56,17 @@ def _configure_logging(config: Config) -> None:
 
 
 @pytest.fixture(scope="session")
-def llm_client(config: Config) -> LocalLLMClient:
+def llm_client(config: Config) -> LocalLLMClient | OllamaClient:
     """
     Single HTTP client shared across the entire test session.
-    Connection pooling is handled by HTTPX internally.
+
+    Which client is instantiated depends on LLM_BACKEND (config.llm_backend):
+      "lmstudio" (default) → LocalLLMClient  (POST /api/v1/chat)
+      "ollama"             → OllamaClient    (POST /chat/completions)
     """
-    with LocalLLMClient(config) as client:
+    client_cls = OllamaClient if config.llm_backend == "ollama" else LocalLLMClient
+    logger.info(f"[llm_client] backend={config.llm_backend!r}  url={config.base_url}")
+    with client_cls(config) as client:
         reachable = client.health_check()
         if not reachable:
             logger.warning(
