@@ -1,0 +1,96 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ── Offline tests ────────────────────────────────────────────────────────
+  # Runs on every push and PR. No LLM server required.
+  # Covers: reporters (JSON/CSV/HTML), metrics aggregation, schema validation.
+  offline-tests:
+    name: Offline Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify all public imports resolve
+        run: |
+          python -c "
+          from src.clients import BaseClient, LocalLLMClient, LLMError
+          from src.evaluators import (
+              AccuracyEvaluator, RelevanceEvaluator, HallucinationEvaluator,
+              PromptInjectionEvaluator, JailbreakEvaluator, LatencyEvaluator,
+              ReasoningEvaluator,
+          )
+          from src.reporters import JSONReporter, CSVReporter, HTMLReporter, ReportRunner
+          from src.schemas import TestCase, EvaluationResult, EvalTier, RiskLevel
+          from src.utils import Config, DatasetLoader
+          print('All imports OK')
+          "
+
+      - name: Run offline test suite
+        run: pytest tests/test_phase5_reporters.py -v --tb=short
+
+  # ── LLM integration tests ────────────────────────────────────────────────
+  # Requires a self-hosted runner with the LLM server running and accessible.
+  # Runs automatically after offline-tests pass, on push to main or manually.
+  #
+  # Setup:
+  #   1. Install a GitHub Actions self-hosted runner on the machine with the LLM.
+  #      https://docs.github.com/en/actions/hosting-your-own-runners
+  #   2. Add repository secrets:
+  #      LLM_BASE_URL    — e.g. http://localhost:1234
+  #      LLM_MODEL_KEY   — e.g. google/gemma-4-e2b
+  llm-integration:
+    name: LLM Integration Tests
+    runs-on: self-hosted
+    needs: offline-tests
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run full test suite against live LLM
+        env:
+          BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          DEFAULT_MODEL_KEY: ${{ secrets.LLM_MODEL_KEY }}
+          REPORT_DIR: reports
+        run: pytest -v --tb=short
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-${{ github.sha }}
+          path: reports/
+          retention-days: 30
